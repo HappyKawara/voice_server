@@ -2,10 +2,13 @@
 #-*- coding: utf-8 -*-
 #[tts_stdserver.py]
 
-import roslib
-import rospy
+#import roslib
+#import rospy
+import rclpy
+from rclpy.node import Node
 #from happymimi_voice_msgs.srv import TTS, TTSResponse
-from happymimi_msgs.srv import StrTrg,StrTrgResponse
+#from happymimi_msgs.srv import StrTrg,StrTrgResponse
+from srvmsgs.srv import TTS
 from google.cloud import texttospeech
 
 import wave
@@ -13,14 +16,15 @@ import pyaudio
 
 Filename = 'output.wav'
 
-class TTS_server(object):
+class TTS_server(Node):
     def __init__(self):
-        rospy.init_node('common_texttospeech')
-        self.srv = rospy.Service('/tts', StrTrg, self.execute)
-        rospy.loginfo("Ready to tts stdserver")
-        rospy.spin()
+        #rospy.init_node('common_texttospeech')
+        super().__init__("tts_server")
+        self.srv = self.create_service(TTS,'/tts', self.execute)
+        print("Ready to tts stdserver")
+        #rospy.spin()
 
-    def execute(self, data):
+    def execute(self, data,res):
         client = texttospeech.TextToSpeechClient()
         synthesis_input = texttospeech.SynthesisInput(text=data.data)
         voice = texttospeech.VoiceSelectionParams(
@@ -38,7 +42,8 @@ class TTS_server(object):
             print('Audio content written to file ' + Filename)
 
         self.PlayWaveFile()
-        return StrTrgResponse()
+        res.result = True
+        return res
 
     def PlayWaveFile(self):
         try:
@@ -66,6 +71,7 @@ class TTS_server(object):
         return
 
 
-if __name__ == '__main__':
-    TTS_server()
-    rospy.spin()
+#if __name__ == '__main__':
+rclpy.init(args=None)
+f=TTS_server()
+rclpy.spin(f)
