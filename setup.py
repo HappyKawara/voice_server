@@ -25,7 +25,8 @@ setup(
             "client_sa = voice_server.client_sample:main",
             "client = voice_server.client_member_function:main",
             "service = voice_server.service_member_function:main",
-            "a = voice_server.a"
+            "a = voice_server.a:main",
+            "cli_tts = voice_server.client_tts:main"
         ],
     },
 )
